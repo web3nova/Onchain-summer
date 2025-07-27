@@ -13,7 +13,11 @@ const EDITOR_WIDTH = 512;
 const EDITOR_HEIGHT = 512;
 
 // To change the background, replace the URL in the following line with your image URL.
-const BACKGROUND_IMAGE_URL = '/Frame.png';
+const BACKGROUND_IMAGE_URL = 'https://i.ibb.co/6g3rWZn/onchain-summer-lagos.png';
+
+const FRAME_SIZE_PERCENT = 0.10; // 10%
+const FRAME_TOP_PERCENT = 0.82; // 82% from top
+const FRAME_LEFT_PERCENT = 0.50; // 50% from left
 
 
 const ZoraIcon = () => (
@@ -114,10 +118,9 @@ export default function OnchainSummerBooth() {
         
         userImage.onload = () => {
             ctx.save();
-            const frameSizePercentage = 0.10; // 10%
-            const circleRadius = (EDITOR_WIDTH * frameSizePercentage) / 2;
-            const circleCenterX = EDITOR_WIDTH / 2;
-            const circleCenterY = EDITOR_HEIGHT * 0.82; // 82% from the top
+            const circleRadius = (EDITOR_WIDTH * FRAME_SIZE_PERCENT) / 2;
+            const circleCenterX = EDITOR_WIDTH * FRAME_LEFT_PERCENT;
+            const circleCenterY = EDITOR_HEIGHT * FRAME_TOP_PERCENT;
 
             ctx.beginPath();
             ctx.arc(circleCenterX, circleCenterY, circleRadius, 0, Math.PI * 2, true);
@@ -178,13 +181,15 @@ export default function OnchainSummerBooth() {
                         <div
                             // To change the size of the frame, adjust the width (w-[...]) and height (h-[...]) here.
                             // For example, to make it 15% of the container, use w-[15%] and h-[15%].
-                            className="absolute w-[30%] h-[30%] rounded-full overflow-hidden border-2 border-pink-300/50 shadow-lg"
+                            className="absolute rounded-full overflow-hidden border-2 border-pink-300/50 shadow-lg"
                             style={{ 
+                              width: `${FRAME_SIZE_PERCENT * 100}%`,
+                              height: `${FRAME_SIZE_PERCENT * 100}%`,
                               // To change the position, adjust the 'top' and 'left' values.
                               // 'top' moves it up or down (e.g., '70%' is higher, '90%' is lower).
                               // 'left' moves it left or right (e.g., '40%' is more to the left).
-                              top: '76%', 
-                              left: '50%', 
+                              top: `${FRAME_TOP_PERCENT * 100}%`, 
+                              left: `${FRAME_LEFT_PERCENT * 100}%`, 
                               transform: 'translate(-50%, -50%)'
                             }}
                         >
@@ -201,10 +206,12 @@ export default function OnchainSummerBooth() {
                     )}
                      <div 
                         // Make sure to apply the same size and position changes here as well.
-                        className="absolute w-[30%] h-[30%] rounded-full pointer-events-none border-2 border-pink-300/50 border-dashed"
+                        className="absolute rounded-full pointer-events-none border-2 border-pink-300/50 border-dashed"
                         style={{ 
-                          top: '76%', 
-                          left: '50%', 
+                          width: `${FRAME_SIZE_PERCENT * 100}%`,
+                          height: `${FRAME_SIZE_PERCENT * 100}%`,
+                          top: `${FRAME_TOP_PERCENT * 100}%`, 
+                          left: `${FRAME_LEFT_PERCENT * 100}%`, 
                           transform: 'translate(-50%, -50%)' 
                         }}
                      />
