@@ -13,10 +13,10 @@ const EDITOR_WIDTH = 512;
 const EDITOR_HEIGHT = 512;
 
 // To change the background, replace the URL in the following line with your image URL.
-const BACKGROUND_IMAGE_URL = 'https://i.ibb.co/6g3rWZn/onchain-summer-lagos.png';
+const BACKGROUND_IMAGE_URL = '/Frame.png';
 
-const FRAME_SIZE_PERCENT = 0.10; // 10%
-const FRAME_TOP_PERCENT = 0.82; // 82% from top
+const FRAME_SIZE_PERCENT = 0.30; // 10%
+const FRAME_TOP_PERCENT = 0.76; // 82% from top
 const FRAME_LEFT_PERCENT = 0.50; // 50% from left
 
 
