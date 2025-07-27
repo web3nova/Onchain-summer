@@ -13,7 +13,7 @@ const EDITOR_WIDTH = 512;
 const EDITOR_HEIGHT = 512;
 
 // To change the background, replace the URL in the following line with your image URL.
-const BACKGROUND_IMAGE_URL = 'https://i.ibb.co/6g3rWZn/onchain-summer-lagos.png';
+const BACKGROUND_IMAGE_URL = '/Frame.png';
 
 
 const ZoraIcon = () => (
@@ -178,12 +178,12 @@ export default function OnchainSummerBooth() {
                         <div
                             // To change the size of the frame, adjust the width (w-[...]) and height (h-[...]) here.
                             // For example, to make it 15% of the container, use w-[15%] and h-[15%].
-                            className="absolute w-[10%] h-[10%] rounded-full overflow-hidden border-2 border-pink-300/50 shadow-lg"
+                            className="absolute w-[30%] h-[30%] rounded-full overflow-hidden border-2 border-pink-300/50 shadow-lg"
                             style={{ 
                               // To change the position, adjust the 'top' and 'left' values.
                               // 'top' moves it up or down (e.g., '70%' is higher, '90%' is lower).
                               // 'left' moves it left or right (e.g., '40%' is more to the left).
-                              top: '82%', 
+                              top: '76%', 
                               left: '50%', 
                               transform: 'translate(-50%, -50%)'
                             }}
@@ -201,9 +201,9 @@ export default function OnchainSummerBooth() {
                     )}
                      <div 
                         // Make sure to apply the same size and position changes here as well.
-                        className="absolute w-[10%] h-[10%] rounded-full pointer-events-none border-2 border-pink-300/50 border-dashed"
+                        className="absolute w-[30%] h-[30%] rounded-full pointer-events-none border-2 border-pink-300/50 border-dashed"
                         style={{ 
-                          top: '82%', 
+                          top: '76%', 
                           left: '50%', 
                           transform: 'translate(-50%, -50%)' 
                         }}
