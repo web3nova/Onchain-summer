@@ -11,7 +11,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 const EDITOR_WIDTH = 512;
 const EDITOR_HEIGHT = 512;
-const BG_IMAGE_URL = 'https://placehold.co/1024x1024/29abe2/f0f8ff.png';
+const BG_IMAGE_URL = 'https://i.ibb.co/mJCJk1g/onchain-summer-lagos-2.png';
 
 const ZoraIcon = () => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -113,7 +113,7 @@ export default function OnchainSummerBooth() {
             ctx.save();
             const circleRadius = EDITOR_WIDTH * 0.35 / 2;
             const circleCenterX = EDITOR_WIDTH / 2;
-            const circleCenterY = EDITOR_HEIGHT / 2;
+            const circleCenterY = EDITOR_HEIGHT * 0.75;
 
             ctx.beginPath();
             ctx.arc(circleCenterX, circleCenterY, circleRadius, 0, Math.PI * 2, true);
@@ -172,7 +172,8 @@ export default function OnchainSummerBooth() {
                     />
                     {imageSrc && (
                         <div
-                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[35%] h-[35%] rounded-full overflow-hidden border-4 border-white shadow-lg"
+                            className="absolute left-1/2 -translate-x-1/2 w-[35%] h-[35%] rounded-full overflow-hidden border-2 border-white/50 shadow-lg"
+                            style={{ top: 'calc(75% - 17.5%)' }}
                         >
                             <img
                                 src={imageSrc}
@@ -185,7 +186,10 @@ export default function OnchainSummerBooth() {
                             />
                         </div>
                     )}
-                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[35%] h-[35%] rounded-full pointer-events-none border-4 border-white/50 border-dashed" />
+                     <div 
+                        className="absolute left-1/2 -translate-x-1/2 w-[35%] h-[35%] rounded-full pointer-events-none border-2 border-white/50 border-dashed"
+                        style={{ top: 'calc(75% - 17.5%)' }}
+                     />
                 </div>
             </CardContent>
         </Card>
