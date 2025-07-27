@@ -114,9 +114,10 @@ export default function OnchainSummerBooth() {
         
         userImage.onload = () => {
             ctx.save();
-            const circleRadius = EDITOR_WIDTH * 0.075; // This is half of the 15% width/height
+            const frameSizePercentage = 0.10; // 10%
+            const circleRadius = (EDITOR_WIDTH * frameSizePercentage) / 2;
             const circleCenterX = EDITOR_WIDTH / 2;
-            const circleCenterY = EDITOR_HEIGHT * 0.72 + circleRadius; // Centered based on top
+            const circleCenterY = EDITOR_HEIGHT * 0.82; // 82% from the top
 
             ctx.beginPath();
             ctx.arc(circleCenterX, circleCenterY, circleRadius, 0, Math.PI * 2, true);
@@ -175,9 +176,14 @@ export default function OnchainSummerBooth() {
                     />
                     {imageSrc && (
                         <div
-                            className="absolute w-[15%] h-[15%] rounded-full overflow-hidden border-2 border-pink-300/50 shadow-lg"
+                            // To change the size of the frame, adjust the width (w-[...]) and height (h-[...]) here.
+                            // For example, to make it 15% of the container, use w-[15%] and h-[15%].
+                            className="absolute w-[10%] h-[10%] rounded-full overflow-hidden border-2 border-pink-300/50 shadow-lg"
                             style={{ 
-                              top: '72%', 
+                              // To change the position, adjust the 'top' and 'left' values.
+                              // 'top' moves it up or down (e.g., '70%' is higher, '90%' is lower).
+                              // 'left' moves it left or right (e.g., '40%' is more to the left).
+                              top: '82%', 
                               left: '50%', 
                               transform: 'translate(-50%, -50%)'
                             }}
@@ -194,9 +200,10 @@ export default function OnchainSummerBooth() {
                         </div>
                     )}
                      <div 
-                        className="absolute w-[15%] h-[15%] rounded-full pointer-events-none border-2 border-pink-300/50 border-dashed"
+                        // Make sure to apply the same size and position changes here as well.
+                        className="absolute w-[10%] h-[10%] rounded-full pointer-events-none border-2 border-pink-300/50 border-dashed"
                         style={{ 
-                          top: '72%', 
+                          top: '82%', 
                           left: '50%', 
                           transform: 'translate(-50%, -50%)' 
                         }}
