@@ -13,7 +13,7 @@ const EDITOR_WIDTH = 512;
 const EDITOR_HEIGHT = 512;
 
 // To change the background, replace the URL in the following line with your image URL.
-const BACKGROUND_IMAGE_URL = 'https://i.ibb.co/6g3rWZn/onchain-summer-lagos.png';
+const BACKGROUND_IMAGE_URL = 'https://i.ibb.co/L0dqBv3/Frame-1-1.png';
 
 
 const ZoraIcon = () => (
@@ -115,8 +115,8 @@ export default function OnchainSummerBooth() {
         userImage.onload = () => {
             ctx.save();
             const circleRadius = EDITOR_WIDTH * 0.22;
-            const circleCenterX = EDITOR_WIDTH * 0.27;
-            const circleCenterY = EDITOR_HEIGHT * 0.46;
+            const circleCenterX = EDITOR_WIDTH / 2;
+            const circleCenterY = EDITOR_HEIGHT * 0.69;
 
             ctx.beginPath();
             ctx.arc(circleCenterX, circleCenterY, circleRadius, 0, Math.PI * 2, true);
@@ -176,7 +176,11 @@ export default function OnchainSummerBooth() {
                     {imageSrc && (
                         <div
                             className="absolute w-[44%] h-[44%] rounded-full overflow-hidden border-2 border-pink-300/50 shadow-lg"
-                            style={{ top: '24%', left: '5%' }}
+                            style={{ 
+                              top: '47%', 
+                              left: '50%', 
+                              transform: 'translateX(-50%)'
+                            }}
                         >
                             <img
                                 src={imageSrc}
@@ -191,7 +195,11 @@ export default function OnchainSummerBooth() {
                     )}
                      <div 
                         className="absolute w-[44%] h-[44%] rounded-full pointer-events-none border-2 border-pink-300/50 border-dashed"
-                        style={{ top: '24%', left: '5%' }}
+                        style={{ 
+                          top: '47%', 
+                          left: '50%', 
+                          transform: 'translateX(-50%)' 
+                        }}
                      />
                 </div>
             </CardContent>
