@@ -114,9 +114,9 @@ export default function OnchainSummerBooth() {
         
         userImage.onload = () => {
             ctx.save();
-            const circleRadius = EDITOR_WIDTH * 0.15;
+            const circleRadius = EDITOR_WIDTH * 0.075; // This is half of the 15% width/height
             const circleCenterX = EDITOR_WIDTH / 2;
-            const circleCenterY = EDITOR_HEIGHT * 0.69;
+            const circleCenterY = EDITOR_HEIGHT * 0.72 + circleRadius; // Centered based on top
 
             ctx.beginPath();
             ctx.arc(circleCenterX, circleCenterY, circleRadius, 0, Math.PI * 2, true);
@@ -175,11 +175,11 @@ export default function OnchainSummerBooth() {
                     />
                     {imageSrc && (
                         <div
-                            className="absolute w-[30%] h-[30%] rounded-full overflow-hidden border-2 border-pink-300/50 shadow-lg"
+                            className="absolute w-[15%] h-[15%] rounded-full overflow-hidden border-2 border-pink-300/50 shadow-lg"
                             style={{ 
-                              top: '54%', 
+                              top: '72%', 
                               left: '50%', 
-                              transform: 'translateX(-50%)'
+                              transform: 'translate(-50%, -50%)'
                             }}
                         >
                             <img
@@ -194,11 +194,11 @@ export default function OnchainSummerBooth() {
                         </div>
                     )}
                      <div 
-                        className="absolute w-[30%] h-[30%] rounded-full pointer-events-none border-2 border-pink-300/50 border-dashed"
+                        className="absolute w-[15%] h-[15%] rounded-full pointer-events-none border-2 border-pink-300/50 border-dashed"
                         style={{ 
-                          top: '54%', 
+                          top: '72%', 
                           left: '50%', 
-                          transform: 'translateX(-50%)' 
+                          transform: 'translate(-50%, -50%)' 
                         }}
                      />
                 </div>
