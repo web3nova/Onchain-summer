@@ -11,7 +11,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 const EDITOR_WIDTH = 512;
 const EDITOR_HEIGHT = 512;
-const INITIAL_BG_IMAGE_URL = 'https://i.ibb.co/kGrP3f2/onchain-summer-new.png';
+
+// To change the background, replace the URL in the following line with your image URL.
+const BACKGROUND_IMAGE_URL = 'https://i.ibb.co/6g3rWZn/onchain-summer-lagos.png';
 
 
 const ZoraIcon = () => (
@@ -22,7 +24,6 @@ const ZoraIcon = () => (
 
 export default function OnchainSummerBooth() {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [bgImageSrc, setBgImageSrc] = useState<string>(INITIAL_BG_IMAGE_URL);
   const [zoom, setZoom] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -30,7 +31,6 @@ export default function OnchainSummerBooth() {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const bgFileInputRef = useRef<HTMLInputElement>(null);
   const imageContainerRef = useRef<HTMLDivElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,16 +42,6 @@ export default function OnchainSummerBooth() {
       setImageSrc(URL.createObjectURL(file));
       setPosition({ x: 0, y: 0 });
       setZoom(1);
-    }
-  };
-
-  const handleBgFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      if (bgImageSrc.startsWith('blob:')) {
-        URL.revokeObjectURL(bgImageSrc);
-      }
-      setBgImageSrc(URL.createObjectURL(file));
     }
   };
 
@@ -112,7 +102,7 @@ export default function OnchainSummerBooth() {
 
     const bgImage = new window.Image();
     bgImage.crossOrigin = 'anonymous';
-    bgImage.src = bgImageSrc;
+    bgImage.src = BACKGROUND_IMAGE_URL;
 
     bgImage.onload = () => {
       ctx.drawImage(bgImage, 0, 0, EDITOR_WIDTH, EDITOR_HEIGHT);
@@ -124,9 +114,9 @@ export default function OnchainSummerBooth() {
         
         userImage.onload = () => {
             ctx.save();
-            const circleRadius = EDITOR_WIDTH * 0.38 / 2;
-            const circleCenterX = EDITOR_WIDTH / 2;
-            const circleCenterY = EDITOR_HEIGHT * 0.48;
+            const circleRadius = EDITOR_WIDTH * 0.22;
+            const circleCenterX = EDITOR_WIDTH * 0.27;
+            const circleCenterY = EDITOR_HEIGHT * 0.46;
 
             ctx.beginPath();
             ctx.arc(circleCenterX, circleCenterY, circleRadius, 0, Math.PI * 2, true);
@@ -176,7 +166,7 @@ export default function OnchainSummerBooth() {
                     style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
                 >
                     <Image
-                        src={bgImageSrc}
+                        src={BACKGROUND_IMAGE_URL}
                         alt="Onchain Summer background"
                         layout="fill"
                         objectFit="cover"
@@ -185,8 +175,8 @@ export default function OnchainSummerBooth() {
                     />
                     {imageSrc && (
                         <div
-                            className="absolute left-1/2 -translate-x-1/2 w-[38%] h-[38%] rounded-full overflow-hidden border-2 border-pink-300/50 shadow-lg"
-                            style={{ top: 'calc(48% - 19%)' }}
+                            className="absolute w-[44%] h-[44%] rounded-full overflow-hidden border-2 border-pink-300/50 shadow-lg"
+                            style={{ top: '24%', left: '5%' }}
                         >
                             <img
                                 src={imageSrc}
@@ -200,8 +190,8 @@ export default function OnchainSummerBooth() {
                         </div>
                     )}
                      <div 
-                        className="absolute left-1/2 -translate-x-1/2 w-[38%] h-[38%] rounded-full pointer-events-none border-2 border-pink-300/50 border-dashed"
-                        style={{ top: 'calc(48% - 19%)' }}
+                        className="absolute w-[44%] h-[44%] rounded-full pointer-events-none border-2 border-pink-300/50 border-dashed"
+                        style={{ top: '24%', left: '5%' }}
                      />
                 </div>
             </CardContent>
@@ -214,16 +204,10 @@ export default function OnchainSummerBooth() {
               <CardDescription>Create your profile picture for Onchain Summer. Upload your photo and position it in the frame.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Button onClick={() => bgFileInputRef.current?.click()} variant="outline">
-                  <Upload className="mr-2 h-4 w-4" /> Upload Background
-                </Button>
-                <Button onClick={() => fileInputRef.current?.click()}>
-                  <Upload className="mr-2 h-4 w-4" /> Upload Photo
-                </Button>
-              </div>
+              <Button onClick={() => fileInputRef.current?.click()} className="w-full">
+                <Upload className="mr-2 h-4 w-4" /> Upload Photo
+              </Button>
               <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
-              <input type="file" ref={bgFileInputRef} onChange={handleBgFileChange} accept="image/*" className="hidden" />
 
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
