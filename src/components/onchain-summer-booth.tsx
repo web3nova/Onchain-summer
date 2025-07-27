@@ -11,7 +11,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 const EDITOR_WIDTH = 512;
 const EDITOR_HEIGHT = 512;
-const BG_IMAGE_URL = 'https://i.ibb.co/mJCJk1g/onchain-summer-lagos-2.png';
+const BG_IMAGE_URL = 'https://i.ibb.co/6g3rWZn/onchain-summer-lagos.png';
 
 const ZoraIcon = () => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -111,9 +111,9 @@ export default function OnchainSummerBooth() {
         
         userImage.onload = () => {
             ctx.save();
-            const circleRadius = EDITOR_WIDTH * 0.35 / 2;
+            const circleRadius = EDITOR_WIDTH * 0.4 / 2;
             const circleCenterX = EDITOR_WIDTH / 2;
-            const circleCenterY = EDITOR_HEIGHT * 0.75;
+            const circleCenterY = EDITOR_HEIGHT * 0.68;
 
             ctx.beginPath();
             ctx.arc(circleCenterX, circleCenterY, circleRadius, 0, Math.PI * 2, true);
@@ -172,8 +172,8 @@ export default function OnchainSummerBooth() {
                     />
                     {imageSrc && (
                         <div
-                            className="absolute left-1/2 -translate-x-1/2 w-[35%] h-[35%] rounded-full overflow-hidden border-2 border-white/50 shadow-lg"
-                            style={{ top: 'calc(75% - 17.5%)' }}
+                            className="absolute left-1/2 -translate-x-1/2 w-[40%] h-[40%] rounded-full overflow-hidden border-2 border-pink-300/50 shadow-lg"
+                            style={{ top: 'calc(68% - 20%)' }}
                         >
                             <img
                                 src={imageSrc}
@@ -187,8 +187,8 @@ export default function OnchainSummerBooth() {
                         </div>
                     )}
                      <div 
-                        className="absolute left-1/2 -translate-x-1/2 w-[35%] h-[35%] rounded-full pointer-events-none border-2 border-white/50 border-dashed"
-                        style={{ top: 'calc(75% - 17.5%)' }}
+                        className="absolute left-1/2 -translate-x-1/2 w-[40%] h-[40%] rounded-full pointer-events-none border-2 border-pink-300/50 border-dashed"
+                        style={{ top: 'calc(68% - 20%)' }}
                      />
                 </div>
             </CardContent>
@@ -197,7 +197,7 @@ export default function OnchainSummerBooth() {
         <div className="flex flex-col gap-6">
           <Card className="shadow-xl">
             <CardHeader>
-              <CardTitle className="font-headline text-3xl text-primary">Onchain Summer Booth</CardTitle>
+              <CardTitle className="font-headline text-3xl text-primary">Onchain Summer Lagos</CardTitle>
               <CardDescription>Create your profile picture for Onchain Summer. Upload your photo and position it in the frame.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
