@@ -395,11 +395,12 @@ export default function OnchainSummerBooth() {
 
           // convert preview pixels → canvas pixels
           const scaleFactor = 1 / FRAME_SIZE_PERCENT;
+
           const scaledX     = position.x * scaleFactor;
           const scaledY     = position.y * scaleFactor;
 
-          const scaledWidth  = userImage.width  * zoom;
-          const scaledHeight = userImage.height * zoom;
+          const scaledWidth  = userImage.width  * zoom * scaleFactor/8.4;
+          const scaledHeight = userImage.height * zoom * scaleFactor/8.4;
 
           const imgX = circleCenterX - scaledWidth  / 2 + scaledX;
           const imgY = circleCenterY - scaledHeight / 2 + scaledY;
@@ -536,7 +537,7 @@ export default function OnchainSummerBooth() {
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Zora minting coming soon!</p>
+                    {<p>Zora minting coming soon!</p>}
                   </TooltipContent>
                 </Tooltip>
               </div>
