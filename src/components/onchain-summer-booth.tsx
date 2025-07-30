@@ -6,8 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Upload, Download, ZoomIn, RotateCcw } from 'lucide-react';
+import { Upload, Download, ZoomIn, RotateCcw, Loader2, ExternalLink } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useAccount, useDisconnect } from 'wagmi';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useMintFlow } from '@/hooks/useMintFlow';
 
 const EDITOR_WIDTH = 512;
 const EDITOR_HEIGHT = 512;
@@ -15,10 +18,9 @@ const EDITOR_HEIGHT = 512;
 // To change the background, replace the URL in the following line with your image URL.
 const BACKGROUND_IMAGE_URL = '/Frame.png';
 
-const FRAME_SIZE_PERCENT = 0.30; // 10%
-const FRAME_TOP_PERCENT = 0.76; // 82% from top
+const FRAME_SIZE_PERCENT = 0.30; // 30%
+const FRAME_TOP_PERCENT = 0.76; // 76% from top
 const FRAME_LEFT_PERCENT = 0.50; // 50% from left
-
 
 const ZoraIcon = () => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -36,6 +38,11 @@ export default function OnchainSummerBooth() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageContainerRef = useRef<HTMLDivElement>(null);
+
+  // Web3 hooks
+  const { address, isConnected } = useAccount();
+  const { disconnect } = useDisconnect();
+  const { mintFlier, isLoading: isMinting, error: mintError, txHash, mintedNFT, currentStep, progress } = useMintFlow();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -94,6 +101,73 @@ export default function OnchainSummerBooth() {
   const resetTransform = () => {
     setZoom(1);
     setPosition({ x: 0, y: 0 });
+  };
+
+  // Generate image blob for minting
+  const generateImageBlob = async (): Promise<Blob | null> => {
+    return new Promise((resolve) => {
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext('2d');
+      if (!canvas || !ctx) {
+        resolve(null);
+        return;
+      }
+
+      canvas.width = EDITOR_WIDTH;
+      canvas.height = EDITOR_HEIGHT;
+
+      const bgImage = new window.Image();
+      bgImage.crossOrigin = 'anonymous';
+      bgImage.src = BACKGROUND_IMAGE_URL;
+
+      bgImage.onload = () => {
+        ctx.drawImage(bgImage, 0, 0, EDITOR_WIDTH, EDITOR_HEIGHT);
+
+        if (imageSrc) {
+          const userImage = new window.Image();
+          userImage.crossOrigin = 'anonymous';
+          userImage.src = imageSrc;
+          
+          userImage.onload = () => {
+            ctx.save();
+            const circleRadius = (EDITOR_WIDTH * FRAME_SIZE_PERCENT) / 2;
+            const circleCenterX = EDITOR_WIDTH * FRAME_LEFT_PERCENT;
+            const circleCenterY = EDITOR_HEIGHT * FRAME_TOP_PERCENT;
+
+            ctx.beginPath();
+            ctx.arc(circleCenterX, circleCenterY, circleRadius, 0, Math.PI * 2, true);
+            ctx.closePath();
+            ctx.clip();
+            
+            const scaledWidth = userImage.width * zoom;
+            const scaledHeight = userImage.height * zoom;
+            
+            const imgX = circleCenterX - scaledWidth / 2 + position.x;
+            const imgY = circleCenterY - scaledHeight / 2 + position.y;
+            
+            ctx.drawImage(userImage, imgX, imgY, scaledWidth, scaledHeight);
+            ctx.restore();
+
+            canvas.toBlob((blob) => {
+              resolve(blob);
+            }, 'image/png');
+          };
+
+          userImage.onerror = () => {
+            resolve(null);
+          };
+        } else {
+          // If no user image, just return background
+          canvas.toBlob((blob) => {
+            resolve(blob);
+          }, 'image/png');
+        }
+      };
+
+      bgImage.onerror = () => {
+        resolve(null);
+      };
+    });
   };
   
   const generateAndDownload = async () => {
@@ -157,6 +231,33 @@ export default function OnchainSummerBooth() {
     };
   };
 
+  // Handle minting to Zora
+  const handleMintToZora = async () => {
+    if (!imageSrc || !address) return;
+    
+    try {
+      // Generate the image blob
+      const imageBlob = await generateImageBlob();
+      if (!imageBlob) {
+        throw new Error('Failed to generate image');
+      }
+      
+      // Mint with metadata
+      await mintFlier(imageBlob, {
+        name: "Onchain Summer Lagos PFP",
+        description: "Profile picture generated at Onchain Summer Lagos 2025 event. A celebration of web3 and blockchain technology in Nigeria.",
+        attributes: [
+          { trait_type: "Event", value: "Onchain Summer Lagos" },
+          { trait_type: "Year", value: "2025" },
+          { trait_type: "Location", value: "Lagos, Nigeria" },
+          { trait_type: "Type", value: "Profile Picture" }
+        ]
+      });
+    } catch (error) {
+      console.error('Minting failed:', error);
+    }
+  };
+
   return (
     <TooltipProvider>
       <div className="w-full max-w-5xl mx-auto grid lg:grid-cols-2 gap-8 items-start">
@@ -179,15 +280,10 @@ export default function OnchainSummerBooth() {
                     />
                     {imageSrc && (
                         <div
-                            // To change the size of the frame, adjust the width (w-[...]) and height (h-[...]) here.
-                            // For example, to make it 15% of the container, use w-[15%] and h-[15%].
                             className="absolute rounded-full overflow-hidden border-2 border-pink-300/50 shadow-lg"
                             style={{ 
                               width: `${FRAME_SIZE_PERCENT * 100}%`,
                               height: `${FRAME_SIZE_PERCENT * 100}%`,
-                              // To change the position, adjust the 'top' and 'left' values.
-                              // 'top' moves it up or down (e.g., '70%' is higher, '90%' is lower).
-                              // 'left' moves it left or right (e.g., '40%' is more to the left).
                               top: `${FRAME_TOP_PERCENT * 100}%`, 
                               left: `${FRAME_LEFT_PERCENT * 100}%`, 
                               transform: 'translate(-50%, -50%)'
@@ -205,7 +301,6 @@ export default function OnchainSummerBooth() {
                         </div>
                     )}
                      <div 
-                        // Make sure to apply the same size and position changes here as well.
                         className="absolute rounded-full pointer-events-none border-2 border-pink-300/50 border-dashed"
                         style={{ 
                           width: `${FRAME_SIZE_PERCENT * 100}%`,
@@ -252,22 +347,104 @@ export default function OnchainSummerBooth() {
                 />
               </div>
 
+              {/* Wallet Connection Section */}
+              <div className="space-y-3">
+                <Label>Wallet Connection</Label>
+                <div className="flex flex-col gap-2">
+                  <ConnectButton />
+                  {isConnected && address && (
+                    <div className="text-xs text-muted-foreground">
+                      Connected: {address.slice(0, 6)}...{address.slice(-4)}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Minting Progress */}
+              {isMinting && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>{currentStep}</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-pink-500 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  <div className="text-xs text-muted-foreground text-center">
+                    {progress}% Complete
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Button onClick={generateAndDownload} disabled={!imageSrc}>
+                  <Button onClick={generateAndDownload} disabled={!imageSrc || isMinting}>
                       <Download className="mr-2 h-4 w-4" /> Download
                   </Button>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="outline" disabled>
+                  
+                  {!isConnected ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="outline" disabled>
+                          <ZoraIcon />
+                          <span className="ml-2">Mint on Zora</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Connect wallet to mint NFT</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    <Button 
+                      onClick={handleMintToZora} 
+                      disabled={!imageSrc || isMinting}
+                      variant="outline"
+                    >
+                      {isMinting ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
                         <ZoraIcon />
-                        <span className="ml-2">Mint on Zora</span>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Zora minting coming soon!</p>
-                    </TooltipContent>
-                  </Tooltip>
+                      )}
+                      <span className="ml-2">
+                        {isMinting ? 'Minting...' : 'Mint on Zora'}
+                      </span>
+                    </Button>
+                  )}
               </div>
+
+              {/* Status Messages */}
+              {txHash && (
+                <div className="space-y-2">
+                  <div className="text-sm text-green-600 font-medium">
+                    ✅ Minted successfully!
+                  </div>
+                  <div className="text-xs text-gray-600 flex items-center gap-1">
+                    TX: {txHash.slice(0, 10)}...{txHash.slice(-8)}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-4 w-4 p-0"
+                      onClick={() => window.open(`https://basescan.org/tx/${txHash}`, '_blank')}
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                    </Button>
+                  </div>
+                  {mintedNFT && (
+                    <div className="text-xs text-gray-600">
+                      Token ID: {mintedNFT.tokenId}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {mintError && (
+                <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
+                  <div className="font-medium">Minting failed:</div>
+                  <div className="text-xs mt-1">{mintError.message}</div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
