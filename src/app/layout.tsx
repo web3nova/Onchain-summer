@@ -5,11 +5,12 @@ import { Toaster } from "@/components/ui/toaster";
 import React from 'react';
 
 // Web3 imports
-import { WagmiProvider } from 'wagmi';
+import { WagmiProvider, createConfig, http } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { RainbowKitProvider, getDefaultConfig, lightTheme } from '@rainbow-me/rainbowkit';
 import { base, baseSepolia } from 'wagmi/chains';
-import '@rainbow-me/rainbowkit/styles.css';
+import { walletConnect } from 'wagmi/connectors';
+import { defaultWagmiConfig } from '@web3modal/wagmi/react';
+import { Web3Modal, Web3ModalProvider } from '@web3modal/wagmi/react';
 
 // Create a query client for React Query
 const queryClient = new QueryClient({
@@ -21,12 +22,38 @@ const queryClient = new QueryClient({
   },
 });
 
-// Wagmi configuration using RainbowKit
-const config = getDefaultConfig({
-  appName: 'Onchain Summer Booth',
-  projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || 'YOUR_PROJECT_ID',
+// Initialize WalletConnect
+const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || 'YOUR_PROJECT_ID';
+
+// Wagmi configuration with WalletConnect
+const metadata = {
+  name: 'Onchain Summer Booth',
+  description: 'Create your Onchain Summer profile picture and mint it as an NFT.',
+  url: 'https://onchain-summer-booth.vercel.app',
+  icons: ['/favicon.ico']
+};
+
+const config = defaultWagmiConfig({
   chains: [base, baseSepolia],
-  ssr: false, // Since this is a client component
+  projectId,
+  metadata,
+  enableWalletConnect: true,
+  enableInjected: true,
+  enableCoinbase: true,
+});
+
+// Initialize WalletConnect Modal
+const modal = new Web3Modal({
+  wagmiConfig: config,
+  projectId,
+  chains: [base, baseSepolia],
+  defaultChain: base,
+  themeMode: 'light',
+  themeVariables: {
+    '--w3m-accent-color': '#FF69B4',
+    '--w3m-accent-fill-color': '#FFFFFF',
+    '--w3m-border-radius': '12px'
+  }
 });
 
 // Web3 Provider Component
@@ -34,19 +61,9 @@ function Web3Provider({ children }: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider
-          theme={lightTheme({
-            accentColor: '#FF69B4',
-            accentColorForeground: 'white',
-            borderRadius: 'medium',
-            fontStack: 'system',
-            overlayBlur: 'small'
-          })}
-          showRecentTransactions={true}
-          coolMode={true}
-        >
+        <Web3ModalProvider>
           {children}
-        </RainbowKitProvider>
+        </Web3ModalProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

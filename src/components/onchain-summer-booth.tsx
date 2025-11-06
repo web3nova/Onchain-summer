@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Upload, Download, ZoomIn, RotateCcw, Loader2, ExternalLink } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAccount, useDisconnect } from 'wagmi';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useWeb3Modal } from '@web3modal/wagmi/react';
 import { useMintFlow } from '@/hooks/useMintFlow';
 
 const EDITOR_WIDTH = 512;
@@ -42,6 +42,7 @@ export default function OnchainSummerBooth() {
   // Web3 hooks
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
+  const { open } = useWeb3Modal();
   const { mintFlier, isLoading: isMinting, error: mintError, txHash, mintedNFT, currentStep, progress } = useMintFlow();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -351,11 +352,19 @@ export default function OnchainSummerBooth() {
               <div className="space-y-3">
                 <Label>Wallet Connection</Label>
                 <div className="flex flex-col gap-2">
-                  <ConnectButton />
-                  {isConnected && address && (
-                    <div className="text-xs text-muted-foreground">
-                      Connected: {address.slice(0, 6)}...{address.slice(-4)}
+                  {isConnected ? (
+                    <div className="flex flex-col gap-2">
+                      <div className="text-sm">
+                        Connected: {address?.slice(0, 6)}...{address?.slice(-4)}
+                      </div>
+                      <Button variant="secondary" onClick={() => disconnect()}>
+                        Disconnect
+                      </Button>
                     </div>
+                  ) : (
+                    <Button onClick={() => open()}>
+                      Connect Wallet
+                    </Button>
                   )}
                 </div>
               </div>
