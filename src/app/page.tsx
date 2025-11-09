@@ -103,6 +103,8 @@ export default function Home() {
           </div>
           
           <OnchainSummerBooth />
+        </div>
+      </section>
 
       {/* Features Section */}
       <section id="learn-more" className="py-20 bg-gradient-to-b from-background to-muted/20">
