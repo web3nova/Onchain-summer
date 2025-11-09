@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
 import OnchainSummerBooth from '@/components/onchain-summer-booth';
+import { useWeb3Modal } from '@web3modal/wagmi/react';
+import { Button } from '@/components/ui/button';
+import { Wallet } from 'lucide-react';
 
 // Metadata for the page (moved from layout.tsx since it's a client component now)
 export const metadata: Metadata = {
@@ -54,10 +57,20 @@ export default function Home() {
           <p className="mt-6 text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
             Transform your photos into unique NFTs on Base Network. Join the Web3 revolution in Lagos.
           </p>
+"use client";
+
           <div className="mt-8 flex flex-col md:flex-row gap-4 justify-center">
             <a href="#create" className="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring h-12 px-8 bg-primary text-primary-foreground shadow hover:bg-primary/90">
               Start Creating →
             </a>
+            <Button 
+              onClick={() => open()}
+              variant="outline" 
+              className="h-12 px-8 bg-background/50 backdrop-blur-sm"
+            >
+              <Wallet className="mr-2 h-4 w-4" />
+              Connect Wallet
+            </Button>
             <a href="#learn-more" className="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring h-12 px-8 border border-input bg-background/50 backdrop-blur-sm shadow-sm hover:bg-accent hover:text-accent-foreground">
               Learn More
             </a>

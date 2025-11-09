@@ -348,26 +348,22 @@ export default function OnchainSummerBooth() {
                 />
               </div>
 
-              {/* Wallet Connection Section */}
-              <div className="space-y-3">
-                <Label>Wallet Connection</Label>
-                <div className="flex flex-col gap-2">
-                  {isConnected ? (
-                    <div className="flex flex-col gap-2">
-                      <div className="text-sm">
-                        Connected: {address?.slice(0, 6)}...{address?.slice(-4)}
+              {/* Wallet Status */}
+              {isConnected && (
+                <div className="space-y-3">
+                  <Label>Wallet Status</Label>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between gap-2 p-2 rounded-lg bg-muted">
+                      <div className="text-sm font-mono">
+                        {address?.slice(0, 6)}...{address?.slice(-4)}
                       </div>
-                      <Button variant="secondary" onClick={() => disconnect()}>
+                      <Button variant="ghost" size="sm" onClick={() => disconnect()}>
                         Disconnect
                       </Button>
                     </div>
-                  ) : (
-                    <Button onClick={() => open()}>
-                      Connect Wallet
-                    </Button>
-                  )}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Minting Progress */}
               {isMinting && (
