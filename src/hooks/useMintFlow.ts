@@ -1,9 +1,10 @@
 // /hooks/useMintFlow.ts
 import { useState, useCallback } from 'react';
-import React from 'react'; // Add missing React import
-import { useAccount } from 'wagmi';
+import React from 'react';
+import { useAccount, useWalletClient } from 'wagmi';
+import { ethers } from 'ethers';
 import { uploadImageToPinata, uploadMetadataToPinata, type NFTMetadata } from '@/lib/pinata';
-import { createAndMintNFT, ensureCorrectNetwork, type MintResult } from '@/lib/zora-mint';
+import { mintNFT, getUserPoints, switchToBase } from '@/lib/contract';
 
 export interface FlierMetadata {
   name: string;
@@ -15,10 +16,14 @@ export interface FlierMetadata {
   external_url?: string;
 }
 
-export interface MintedNFT extends MintResult {
+export interface MintedNFT {
+  tokenId: string;
+  contractAddress: string;
+  transactionHash: string;
   ipfsCid: string;
   metadataUri: string;
   mintedAt: Date;
+  userPoints: number;
 }
 
 export interface MintFlowError extends Error {
@@ -43,8 +48,7 @@ const MINT_STEPS = {
   UPLOADING_IMAGE: 'Uploading image to IPFS...',
   CREATING_METADATA: 'Creating NFT metadata...',
   UPLOADING_METADATA: 'Uploading metadata to IPFS...',
-  MINTING: 'Minting NFT on Zora...',
-  SAVING_BACKEND: 'Saving to database...',
+  MINTING: 'Minting NFT on Base...',
   COMPLETE: 'Mint complete!'
 } as const;
 
@@ -69,45 +73,6 @@ export function useMintFlow(): UseMintFlowReturn {
     setProgress(progressValue);
   };
 
-  const saveToBackend = async (nftData: MintedNFT): Promise<void> => {
-    try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL;
-      if (!backendUrl) {
-        console.warn('No backend URL configured, skipping database save');
-        return;
-      }
-
-      const response = await fetch(`${backendUrl}/api/nfts`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          walletAddress: address,
-          ipfsCid: nftData.ipfsCid,
-          metadataUri: nftData.metadataUri,
-          tokenId: nftData.tokenId,
-          contractAddress: nftData.contractAddress,
-          transactionHash: nftData.transactionHash,
-          eventData: {
-            eventName: 'Onchain Summer Lagos',
-            mintedAt: nftData.mintedAt.toISOString(),
-          }
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Backend save failed: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      console.log('Successfully saved to backend:', result);
-    } catch (error) {
-      console.error('Backend save error (non-critical):', error);
-      // Don't throw here - backend save failure shouldn't fail the entire mint
-    }
-  };
-
   const mintFlier = useCallback(async (
     imageBlob: Blob,
     metadata: FlierMetadata
@@ -128,10 +93,19 @@ export function useMintFlow(): UseMintFlowReturn {
       // Step 2: Check/switch to correct network
       updateProgress('NETWORK_CHECK', 20);
       try {
-        await ensureCorrectNetwork();
+        await switchToBase();
       } catch (networkError) {
         throw createMintError('network', 'Please switch to Base network', networkError as Error);
       }
+
+      // Get wallet client for signing
+      const walletClient = await window.ethereum;
+      if (!walletClient) {
+        throw createMintError('wallet', 'No wallet provider found');
+      }
+
+      const provider = new ethers.BrowserProvider(walletClient);
+      const signer = await provider.getSigner();
 
       // Step 3: Upload image to IPFS
       updateProgress('UPLOADING_IMAGE', 30);
@@ -174,19 +148,37 @@ export function useMintFlow(): UseMintFlowReturn {
         throw createMintError('ipfs-metadata', 'Failed to upload metadata to IPFS', metadataError as Error);
       }
 
-      // Step 6: Mint NFT on Zora
+      // Step 6: Mint NFT on Base
       updateProgress('MINTING', 75);
       let mintResult;
+      let userPoints = 0;
       try {
-        mintResult = await createAndMintNFT(
+        const receipt = await mintNFT(
+          signer,
           metadataUploadResult.ipfsUrl,
-          address,
-          'Onchain Summer Lagos PFP',
-          'OSLPFP'
+          metadata.name,
+          'OSLPFP' // Symbol for Onchain Summer Lagos PFP
         );
-        setTxHash(mintResult.transactionHash);
+        
+        if (!receipt) {
+          throw new Error('Transaction receipt not found');
+        }
+        
+        setTxHash(receipt.hash);
+        
+        // Get user points after minting
+        userPoints = await getUserPoints(provider, address);
+        
+        mintResult = {
+          transactionHash: receipt.hash,
+          contractAddress: receipt.contractAddress || '0x2C4581D4cE74EeE134a0129CB9dF36e6300F5812',
+          // Parse token ID from logs if available
+          tokenId: receipt.logs && receipt.logs.length > 0 
+            ? (receipt.logs[0].topics[3] || 'N/A')
+            : 'N/A'
+        };
       } catch (mintError) {
-        throw createMintError('mint', 'Failed to mint NFT on Zora', mintError as Error);
+        throw createMintError('mint', 'Failed to mint NFT on Base', mintError as Error);
       }
 
       // Step 7: Create final NFT object
@@ -194,19 +186,11 @@ export function useMintFlow(): UseMintFlowReturn {
         ...mintResult,
         ipfsCid: imageUploadResult.ipfsHash,
         metadataUri: metadataUploadResult.ipfsUrl,
-        mintedAt: new Date()
+        mintedAt: new Date(),
+        userPoints
       };
 
-      // Step 8: Save to backend (non-critical)
-      updateProgress('SAVING_BACKEND', 90);
-      try {
-        await saveToBackend(finalNFT);
-      } catch (backendError) {
-        // Log but don't fail the mint
-        console.warn('Backend save failed (non-critical):', backendError);
-      }
-
-      // Step 9: Complete
+      // Step 8: Complete
       updateProgress('COMPLETE', 100);
       setMintedNFT(finalNFT);
       
@@ -239,52 +223,5 @@ export function useMintFlow(): UseMintFlowReturn {
     currentStep,
     progress,
     resetState
-  };
-}
-
-// Hook for fetching user's previously minted NFTs
-export function useUserNFTs(walletAddress?: string) {
-  const [nfts, setNfts] = useState<MintedNFT[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-
-  const fetchNFTs = useCallback(async () => {
-    if (!walletAddress) return;
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL;
-      if (!backendUrl) {
-        throw new Error('Backend URL not configured');
-      }
-
-      const response = await fetch(`${backendUrl}/api/nfts/${walletAddress}`);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch NFTs: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      setNfts(data.nfts || []);
-    } catch (error) {
-      console.error('Error fetching user NFTs:', error);
-      setError(error as Error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [walletAddress]);
-
-  // Auto-fetch when wallet address changes
-  React.useEffect(() => {
-    fetchNFTs();
-  }, [fetchNFTs]);
-
-  return {
-    nfts,
-    isLoading,
-    error,
-    refetch: fetchNFTs
   };
 }

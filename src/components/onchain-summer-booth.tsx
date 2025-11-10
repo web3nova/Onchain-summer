@@ -6,11 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Upload, Download, ZoomIn, RotateCcw, Loader2, ExternalLink } from 'lucide-react';
+import { Upload, Download, ZoomIn, RotateCcw, Loader2, ExternalLink, Trophy } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAccount, useDisconnect } from 'wagmi';
 import { useWeb3Modal } from '@web3modal/wagmi/react';
 import { useMintFlow } from '@/hooks/useMintFlow';
+import { getUserPoints } from '@/lib/contract';
+import { ethers } from 'ethers';
 
 const EDITOR_WIDTH = 512;
 const EDITOR_HEIGHT = 512;
@@ -34,6 +36,7 @@ export default function OnchainSummerBooth() {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [userPoints, setUserPoints] = useState<number>(0);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -56,6 +59,22 @@ export default function OnchainSummerBooth() {
       setZoom(1);
     }
   };
+
+  // Load user points when wallet is connected
+  useEffect(() => {
+    async function loadPoints() {
+      if (isConnected && address && window.ethereum) {
+        try {
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const points = await getUserPoints(provider, address);
+          setUserPoints(points);
+        } catch (error) {
+          console.error('Error loading points:', error);
+        }
+      }
+    }
+    loadPoints();
+  }, [isConnected, address, mintedNFT]); // Reload when NFT is minted
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -351,15 +370,26 @@ export default function OnchainSummerBooth() {
               {/* Wallet Status */}
               {isConnected && (
                 <div className="space-y-3">
-                  <Label>Wallet Status</Label>
+                  <Label>Wallet & Points</Label>
                   <div className="flex flex-col gap-2">
-                    <div className="flex items-center justify-between gap-2 p-2 rounded-lg bg-muted">
-                      <div className="text-sm font-mono">
-                        {address?.slice(0, 6)}...{address?.slice(-4)}
+                    <div className="p-3 rounded-lg bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-200 dark:border-purple-800">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="text-sm font-mono">
+                          {address?.slice(0, 6)}...{address?.slice(-4)}
+                        </div>
+                        <Button variant="ghost" size="sm" onClick={() => disconnect()}>
+                          Disconnect
+                        </Button>
                       </div>
-                      <Button variant="ghost" size="sm" onClick={() => disconnect()}>
-                        Disconnect
-                      </Button>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Trophy className="h-4 w-4 text-yellow-500" />
+                        <span className="font-semibold text-yellow-600 dark:text-yellow-400">
+                          {userPoints} Points
+                        </span>
+                        <span className="text-muted-foreground">
+                          ({userPoints / 2} NFTs minted)
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -394,7 +424,7 @@ export default function OnchainSummerBooth() {
                       <TooltipTrigger asChild>
                         <Button variant="outline" disabled>
                           <ZoraIcon />
-                          <span className="ml-2">Mint on Zora</span>
+                          <span className="ml-2">Mint NFT</span>
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
@@ -413,7 +443,7 @@ export default function OnchainSummerBooth() {
                         <ZoraIcon />
                       )}
                       <span className="ml-2">
-                        {isMinting ? 'Minting...' : 'Mint on Zora'}
+                        {isMinting ? 'Minting...' : 'Mint NFT'}
                       </span>
                     </Button>
                   )}
@@ -425,6 +455,17 @@ export default function OnchainSummerBooth() {
                   <div className="text-sm text-green-600 font-medium">
                     ✅ Minted successfully!
                   </div>
+                  {mintedNFT && (
+                    <div className="text-sm bg-green-50 dark:bg-green-900/20 p-3 rounded-md space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Trophy className="h-4 w-4 text-yellow-500" />
+                        <span className="font-semibold">You earned 2 points!</span>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Total points: {mintedNFT.userPoints}
+                      </div>
+                    </div>
+                  )}
                   <div className="text-xs text-gray-600 flex items-center gap-1">
                     TX: {txHash.slice(0, 10)}...{txHash.slice(-8)}
                     <Button
@@ -436,7 +477,7 @@ export default function OnchainSummerBooth() {
                       <ExternalLink className="h-3 w-3" />
                     </Button>
                   </div>
-                  {mintedNFT && (
+                  {mintedNFT && mintedNFT.tokenId !== 'N/A' && (
                     <div className="text-xs text-gray-600">
                       Token ID: {mintedNFT.tokenId}
                     </div>
