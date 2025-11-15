@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   authors: [{ name: 'Onchain Summer Lagos Team' }],
   openGraph: {
     title: 'Onchain Summer Booth',
-    description: 'Create your Onchain Summer profile picture and mint it as an NFT on ZORA Network.',
+    description: 'Create your Onchain Summer profile picture and mint it as an NFT on Base Network.',
     type: 'website',
     siteName: 'Onchain Summer Booth',
     images: [
@@ -57,7 +57,7 @@ export default function Home() {
           <p className="mt-6 text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
             Transform your photos into unique NFTs on Base Network. Join the Web3 revolution in Lagos.
           </p>
-"use client";
+
 
           <div className="mt-8 flex flex-col md:flex-row gap-4 justify-center">
             <a href="#create" className="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring h-12 px-8 bg-primary text-primary-foreground shadow hover:bg-primary/90">
