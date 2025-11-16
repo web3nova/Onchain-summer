@@ -196,7 +196,7 @@ export default function Home() {
                   <span className="text-2xl">3️⃣</span>
                 </div>
                 <h4 className="font-semibold mb-2">Connect Wallet</h4>
-                <p className="text-sm text-muted-foreground">Link your Web3 wallet to mint</p>
+                <p className="text-sm text-muted-foreground">Connect your Web3 wallet to mint</p>
               </div>
               
               <div className="text-center">
@@ -246,7 +246,7 @@ export default function Home() {
                   <div className="mt-1">⚡</div>
                   <div>
                     <div className="font-semibold">Fast Protocol</div>
-                    <div className="text-muted-foreground">Powered by Zora</div>
+                    <div className="text-muted-foreground">Powered by Zora and Base</div>
                   </div>
                 </div>
               </div>

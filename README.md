@@ -29,7 +29,6 @@ The app uses ReWon AppKit (WalletConnect) for wallet connection and ethers.js fo
 - Download the composed PNG.
 - Connect a wallet (WalletConnect/ReWon AppKit) and mint the created image as an NFT on Base Network.
 - Upload image and metadata to Pinata/IPFS and use the resulting URI when minting.
-- Earn 2 points per NFT minted (tracked on-chain).
 - View your total points and NFT count.
 - Minimal, mobile-friendly UI built with Tailwind + Radix UI primitives.
 
