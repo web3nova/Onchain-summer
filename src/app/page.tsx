@@ -218,7 +218,7 @@ export default function Home() {
             <div>
               <h2 className="text-3xl font-bold mb-6">Join the Lagos Web3 Community</h2>
               <p className="text-lg text-muted-foreground mb-8">
-                Be part of the growing Web3 movement in Lagos. Connect with other creators, developers, and enthusiasts building the future of the internet.
+                Join Lagos Web3 creators building the decentralized future. Create, mint, and own your digital identity on Base Network.
               </p>
               <div className="grid grid-cols-2 gap-6 text-sm">
                 <div className="flex items-start gap-2">
@@ -280,9 +280,9 @@ export default function Home() {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <h3 className="font-bold text-lg mb-4">Onchain Summer Lagos</h3>
-              <p className="text-sm text-muted-foreground">
-                Create, mint, and join the Web3 revolution in Lagos.
-              </p>
+                <p className="text-sm text-muted-foreground">
+                Transform photos into NFTs on Base Network.
+                </p>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Resources</h4>
